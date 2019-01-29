@@ -10,7 +10,7 @@ TODO
 Dependencies
 ============
 
-* ranger
-* python feedparser
+* [ranger](https://github.com/ranger/ranger)
+* [feedparser](https://pypi.org/project/feedparser/)
 * firefox (requires an existing firefox profile "feedranger")
 
