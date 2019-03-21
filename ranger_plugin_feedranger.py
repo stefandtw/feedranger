@@ -17,6 +17,9 @@ from ranger.gui.widgets.browsercolumn import BrowserColumn
 
 
 dirrec = ".local/share/feedranger"
+dirpath = os.path.join(os.environ["HOME"], dirrec)
+configpath = dirpath + "/.config"
+fetchbin = "feedranger_fetch"
 refresh_timeout = 20
  
 
@@ -26,7 +29,7 @@ class feeds_update(Command):
     done = None
 
     def execute(self):
-        command = "shell -fp feedranger_fetch"
+        command = "shell -fp " + fetchbin
         feeds_update.update_start = time.time()
         feeds_update.done = False
         feeds_update.DirectoryRefresh(self.fm).start()
@@ -34,8 +37,8 @@ class feeds_update(Command):
 
     def is_updating(dir):
         try:
-            if (os.stat(dir.path + '/.started_fetch').st_mtime
-                    > os.stat(dir.path + '/.last_fetched').st_mtime):
+            if (os.stat(dir.path + '/.fetch_started').st_mtime
+                    > os.stat(dir.path + '/.fetch_completed').st_mtime):
                 return True
         except:
             pass
@@ -84,6 +87,8 @@ ranger.api.hook_init = hook_init
 
 
 def on_file_focus(fsobject):
+    if not fsobject:
+        return
     path = fsobject.realpath
 
     if fsobject.is_directory:
@@ -136,27 +141,24 @@ def custom_click(self, event):
         elif self.target.is_directory:
             index = self.scroll_begin + event.y - self.y
             clicked_file = self.target.files[index]
-            if clicked_file.is_file:
-                self.fm.tags.remove(clicked_file.path)
-            elif clicked_file.is_directory:
-                files = [clicked_file.path + "/" + f
-                         for f in os.listdir(clicked_file.path)
-                         if not f.startswith(".")]
-                for f in files:
-                    self.fm.tags.add(f, tag="r")
-            self.fm.execute_console("reload_cwd")
-            return True
+            if dirrec in clicked_file.path:
+                if clicked_file.is_file:
+                    self.fm.tags.remove(clicked_file.path)
+                elif clicked_file.is_directory:
+                    files = [clicked_file.path + "/" + f
+                             for f in os.listdir(clicked_file.path)
+                             if not f.startswith(".")]
+                    self.fm.tag_add(files, tag="r")
+                self.fm.execute_console("reload_cwd")
+                return True
     CLICK_OLD(self, event)
 CLICK_OLD = BrowserColumn.click
 BrowserColumn.click = custom_click
 
 
-# TODO: Read config file only when needed. Don't just use the starting
-# directory.
 def readconfig():
-    path = ".config"
-    if os.path.isfile(path):
-        with open(path, "r") as f:
+    if os.path.isfile(configpath):
+        with open(configpath, "r") as f:
             return [l.strip() for l in f]
     else:
         return []
