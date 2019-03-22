@@ -21,6 +21,7 @@ dirpath = os.path.join(os.environ["HOME"], dirrec)
 configpath = dirpath + "/.config"
 fetchbin = "feedranger_fetch"
 refresh_timeout = 20
+DEVNULL = open(os.devnull, 'w')
  
 
 class feeds_update(Command):
@@ -35,6 +36,7 @@ class feeds_update(Command):
         feeds_update.DirectoryRefresh(self.fm).start()
         self.fm.execute_console(command)
 
+    @staticmethod
     def is_updating(dir):
         try:
             if (os.stat(dir.path + '/.fetch_started').st_mtime
@@ -67,12 +69,12 @@ class feeds_update(Command):
 
 # Settings and signal bindings
 def hook_init(fm):
-    fm.execute_console(f"setlocal path={dirrec}$ sort feeds")
-    fm.execute_console(f"setlocal path={dirrec}/ sort mtime")
-    fm.execute_console(f"setlocal path={dirrec}/ preview_files false")
-    fm.execute_console(f"setlocal path={dirrec}/ padding_right false")
-    fm.execute_console(f"default_linemode path={dirrec} feeds")
-    fm.execute_console(f"default_linemode path={dirrec}/.+/ mtime")
+    fm.execute_console("setlocal path={}$ sort feeds".format(dirrec))
+    fm.execute_console("setlocal path={}/ sort mtime".format(dirrec))
+    fm.execute_console("setlocal path={}/ preview_files false".format(dirrec))
+    fm.execute_console("setlocal path={}/ padding_right false".format(dirrec))
+    fm.execute_console("default_linemode path={} feeds".format(dirrec))
+    fm.execute_console("default_linemode path={}/.+/ mtime".format(dirrec))
     # Call load() to refresh unread count
     fm.signal_bind("cd", lambda signal:
                    signal.new.load() if dirrec in signal.new.path else None)
@@ -101,8 +103,8 @@ def on_file_focus(fsobject):
         File.latest_path = path
         # Open in firefox, ignoring useless warnings
         subprocess.Popen(["firefox", "-P", "feedranger", path],
-                         stderr=subprocess.DEVNULL,
-                         stdout=subprocess.DEVNULL)
+                         stderr=DEVNULL,
+                         stdout=DEVNULL)
         fsobject.fm.tags.add(path, tag="r")
 
 
@@ -122,7 +124,7 @@ class FeedsLinemode(LinemodeBase):
                 length_s = str(count) if count > 0 else "  "
                 updating_s = " ..." if feeds_update.is_updating(file) else ""
                 return length_s + updating_s
-            except FileNotFoundError:
+            except IOError:
                 pass
 
         return super().infostring(file, metadata)

@@ -81,6 +81,7 @@ Installation
 * `sudo install fetch.py /usr/bin/feedranger_fetch`
 * `vim ~/.local/share/feedranger/.config` to set up your feeds
 * `sudo pip install feedparser`
+* if using python 2.7: `sudo pip install futures`
 * `firefox -P feedranger` (To create a separate firefox profile. If a dialog pops up, you may have to create the profile in there. Then select the feedranger profile to start Firefox.)
 * In Firefox, about:config, set to 1: `browser.link.open_newwindow.override.external`
 * In Firefox, about:config, set to true: `browser.tabs.loadDivertedInBackground`
@@ -94,4 +95,5 @@ Dependencies
 * [ranger](https://github.com/ranger/ranger)
 * [feedparser](https://pypi.org/project/feedparser/)
 * firefox
+* Python 3.1+, or Python 2.7 with [futures](https://pypi.org/project/futures/)
 

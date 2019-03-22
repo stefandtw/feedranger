@@ -1,14 +1,25 @@
-#!/usr/bin/python3
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import calendar
 import os
 import subprocess
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from xml.sax.saxutils import escape, quoteattr
 import feedparser
+import _strptime
+
+
+if sys.version_info.major < 3:
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 
 os.chdir(os.path.join(os.environ["HOME"], ".local/share/feedranger"))
+DEVNULL = open(os.devnull, 'w')
 
 
 def fromfile(name, dir):
@@ -39,7 +50,8 @@ class Fetcher():
             now = time.gmtime()
             self.feedname = name
             self.dir = name + "/"
-            os.makedirs(self.dir, exist_ok=True)
+            if not os.path.exists(self.dir):
+                os.makedirs(self.dir)
             tofile(".fetch_started", time.strftime(self.time_format, now),
                    self.dir)
             for command in commands:
@@ -60,7 +72,7 @@ class Fetcher():
                    self.dir)
         finally:
             # Set mtime on directory so ranger refreshes its view
-            os.utime(self.dir)
+            os.utime(self.dir, None)
             Fetcher.fetched_count += 1
             print("({}/{}) {}".format(Fetcher.fetched_count,
                                       Fetcher.feed_count, self.dir))
@@ -72,8 +84,8 @@ class ShellCommand():
         subprocess.Popen(self.cmd,
                          shell=True,
                          cwd=self.dir,
-                         stderr=subprocess.DEVNULL,
-                         stdout=subprocess.DEVNULL)
+                         stderr=DEVNULL,
+                         stdout=DEVNULL)
 
 
 class ConditionFailed(Exception):
@@ -87,8 +99,8 @@ class ShellConditionCommand():
         process = subprocess.Popen(self.cmd,
                          shell=True,
                          cwd=self.dir,
-                         stderr=subprocess.DEVNULL,
-                         stdout=subprocess.DEVNULL)
+                         stderr=DEVNULL,
+                         stdout=DEVNULL)
         process.wait()
         if process.returncode != 0:
             print("{}: Exit code {} returned by {}"
@@ -196,7 +208,7 @@ class UrlCommand():
                                      ) if fetch_completed_s else None
         now = time.gmtime()
         # Set mtime on directory so ranger refreshes its view
-        os.utime(self.dir)
+        os.utime(self.dir, None)
 
         feed = feedparser.parse(self.feedurl,
                                    modified=http_last_modified,
