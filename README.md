@@ -26,6 +26,7 @@ Most important UI features:
 * Instantly display selected feed entry files in Firefox
 * Selected files are automatically tagged as read via ranger tags
 * Since this is merely a plug-in, all of your ranger customization options still apply
+* Mouse support: Right click a feed directory to mark all entries as read. Right click an entry to mark it as unread. To mark all entries in the current directory as read, you can also map this to a key: `eval fm.tag_add([f.path for f in fm.thisdir.files], tag="r")`
 
 
 The config file
