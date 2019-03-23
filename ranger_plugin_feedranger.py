@@ -127,7 +127,7 @@ class FeedsLinemode(LinemodeBase):
             except IOError:
                 pass
 
-        return super().infostring(file, metadata)
+        return super(FeedsLinemode, self).infostring(file, metadata)
 
 
 register_linemode(FeedsLinemode)
