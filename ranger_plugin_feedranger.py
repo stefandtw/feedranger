@@ -1,4 +1,4 @@
-# Plug-in based on ranger 1.9.2
+# Plug-in based on ranger 1.9.3
 #
 # This plugin changes ranger's behaviour when in the feedranger directory.
 
@@ -150,7 +150,7 @@ def custom_click(self, event):
                     files = [clicked_file.path + "/" + f
                              for f in os.listdir(clicked_file.path)
                              if not f.startswith(".")]
-                    self.fm.tag_add(files, tag="r")
+                    self.fm.tag_add(paths=files, tag="r")
                 self.fm.execute_console("reload_cwd")
                 return True
     CLICK_OLD(self, event)
