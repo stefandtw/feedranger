@@ -69,8 +69,8 @@ class feeds_update(Command):
 
 # Settings and signal bindings
 def hook_init(fm):
-    fm.execute_console("setlocal path={}$ sort feeds".format(dirrec))
     fm.execute_console("setlocal path={}/ sort mtime".format(dirrec))
+    fm.execute_console("setlocal path={} sort feeds".format(dirrec))
     fm.execute_console("setlocal path={}/ preview_files false".format(dirrec))
     fm.execute_console("setlocal path={}/ padding_right false".format(dirrec))
     fm.execute_console("default_linemode path={} feeds".format(dirrec))
